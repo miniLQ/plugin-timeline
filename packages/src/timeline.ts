@@ -7,6 +7,13 @@ import { detectDarkTheme, createThemeObserver } from './utils';
 import { fetchTimelines } from './api';
 import { marked } from 'marked';
 
+// 配置 marked 为同步模式
+marked.use({
+  async: false,
+  breaks: true,
+  gfm: true,
+});
+
 @customElement('timeline-view')
 export class Timeline extends LitElement {
   static styles = timelineStyles;
@@ -32,7 +39,6 @@ export class Timeline extends LitElement {
     super.connectedCallback();
     this.detectTheme();
     this.observeTheme();
-    this.configureMarked();
     if (this.groupName) {
       this.fetchTimelines();
     }
@@ -63,17 +69,12 @@ export class Timeline extends LitElement {
   }
 
   private configureMarked() {
-    // 配置 marked 选项
-    marked.setOptions({
-      breaks: true, // 支持 GFM 换行
-      gfm: true, // 启用 GitHub Flavored Markdown
-    });
-  }
-
-  private parseMarkdown(text: string): string {
+    // 配置 parseMarkdown(text: string): string {
+    if (!text) return '';
     try {
-      return marked.parse(text) as string;
-    } catch (error) {
+      // 使用同步模式的 marked.parse
+      const result = marked.parse(text, { async: false });
+      return typeof result === 'string' ? result : text
       console.error('Error parsing markdown:', error);
       return text;
     }

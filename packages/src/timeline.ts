@@ -37,6 +37,7 @@ export class Timeline extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
+    console.log('Timeline component connected, version: with-markdown-support-v2');
     this.detectTheme();
     this.observeTheme();
     if (this.groupName) {
@@ -100,6 +101,8 @@ export class Timeline extends LitElement {
   }
 
   render() {
+    console.log('Timeline render called, items:', this.items);
+    
     if (this.isLoading) {
       return html`
         <div class="timeline-loading">加载中...</div>
@@ -120,9 +123,15 @@ export class Timeline extends LitElement {
       <div class="timeline ${this.isDark ? 'dark' : ''}">
         ${this.items.map(
           (item, index) => {
+            console.log('Rendering item:', item.displayName);
             const isAlternating = this.orientation === 'alternating';
             const isEven = index % 2 === 0;
             const sideClass = isAlternating ? (isEven ? 'timeline-item-right' : 'timeline-item-left') : '';
+            
+            // 提前解析 Markdown
+            const parsedContent = item.displayName ? this.parseMarkdown(item.displayName) : '';
+            console.log('Parsed content for item:', parsedContent);
+            
             return html`
             <div class="timeline-item ${item.image ? 'has-image' : ''} ${sideClass}">
               <div class="timeline-marker ${item.active ? 'active' : ''}"></div>
@@ -134,7 +143,7 @@ export class Timeline extends LitElement {
                 ` : ''}
                 <div class="timeline-content-inner">
                   ${item.date ? html`<div class="timeline-date">${item.date}</div>` : ''}
-                  ${item.displayName ? html`<div class="timeline-title markdown-content">${unsafeHTML(this.parseMarkdown(item.displayName))}</div>` : ''}
+                  ${parsedContent ? html`<div class="timeline-title markdown-content">${unsafeHTML(parsedContent)}</div>` : ''}
                   ${item.relatedLinks ? html`
                     <div class="timeline-link">
                       <a href="${item.relatedLinks}" target="_blank" rel="noopener noreferrer">查看关联</a>

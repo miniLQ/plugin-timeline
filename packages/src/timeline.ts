@@ -68,13 +68,13 @@ export class Timeline extends LitElement {
     });
   }
 
-  private configureMarked() {
-    // 配置 parseMarkdown(text: string): string {
+  private parseMarkdown(text: string): string {
     if (!text) return '';
     try {
       // 使用同步模式的 marked.parse
       const result = marked.parse(text, { async: false });
-      return typeof result === 'string' ? result : text
+      return typeof result === 'string' ? result : text;
+    } catch (error) {
       console.error('Error parsing markdown:', error);
       return text;
     }

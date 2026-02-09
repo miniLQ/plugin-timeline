@@ -1,4 +1,5 @@
-import { LitElement, html, unsafeHTML } from 'lit';
+import { LitElement, html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { customElement, property, state } from 'lit/decorators.js';
 import { timelineStyles } from './styles';
 import type { TimelineItem } from './types';

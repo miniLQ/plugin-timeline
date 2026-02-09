@@ -45,8 +45,6 @@ export class Timeline extends LitElement {
     if (this.groupName) {
       this.fetchTimelines();
     }
-    // 添加全局点击监听，处理 Markdown 中的图片
-    this.addEventListener('click', this.handleGlobalClick);
   }
 
   disconnectedCallback() {
@@ -54,7 +52,6 @@ export class Timeline extends LitElement {
     if (this.themeObserver) {
       this.themeObserver.disconnect();
     }
-    this.removeEventListener('click', this.handleGlobalClick);
   }
 
   updated(changedProperties: Map<string | number | symbol, unknown>) {
@@ -62,6 +59,8 @@ export class Timeline extends LitElement {
     if (changedProperties.has('groupName') && this.groupName) {
       this.fetchTimelines();
     }
+    // 在每次更新后添加 Markdown 图片的点击事件
+    this.addMarkdownImageListeners();
   }
 
   private detectTheme() {
@@ -89,14 +88,16 @@ export class Timeline extends LitElement {
     this.previewImage = imageUrl;
   }
 
-  private handleGlobalClick = (e: Event) => {
-    const target = e.target as HTMLElement;
-    // 处理 Markdown 中的图片点击
-    if (target.tagName === 'IMG' && target.closest('.markdown-content')) {
-      e.preventDefault();
-      const img = target as HTMLImageElement;
-      this.handleImageClick(img.src);
-    }
+  private addMarkdownImageListeners() {
+    // 为 Markdown 内容中的所有图片添加点击事件
+    const markdownImages = this.shadowRoot?.querySelectorAll('.markdown-content img');
+    markdownImages?.forEach((img) => {
+      (img as HTMLImageElement).onclick = (e) => {
+        e.preventDefault();
+        const target = e.target as HTMLImageElement;
+        this.handleImageClick(target.src);
+      };
+    });
   }
 
   private handleClosePreview(e?: Event) {

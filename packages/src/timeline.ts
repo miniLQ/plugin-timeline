@@ -1,9 +1,10 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, unsafeHTML } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { timelineStyles } from './styles';
 import type { TimelineItem } from './types';
 import { detectDarkTheme, createThemeObserver } from './utils';
 import { fetchTimelines } from './api';
+import { marked } from 'marked';
 
 @customElement('timeline-view')
 export class Timeline extends LitElement {
@@ -30,6 +31,7 @@ export class Timeline extends LitElement {
     super.connectedCallback();
     this.detectTheme();
     this.observeTheme();
+    this.configureMarked();
     if (this.groupName) {
       this.fetchTimelines();
     }
@@ -57,6 +59,23 @@ export class Timeline extends LitElement {
     this.themeObserver = createThemeObserver(() => {
       this.detectTheme();
     });
+  }
+
+  private configureMarked() {
+    // 配置 marked 选项
+    marked.setOptions({
+      breaks: true, // 支持 GFM 换行
+      gfm: true, // 启用 GitHub Flavored Markdown
+    });
+  }
+
+  private parseMarkdown(text: string): string {
+    try {
+      return marked.parse(text) as string;
+    } catch (error) {
+      console.error('Error parsing markdown:', error);
+      return text;
+    }
   }
 
   private async fetchTimelines() {
@@ -110,7 +129,7 @@ export class Timeline extends LitElement {
                 ` : ''}
                 <div class="timeline-content-inner">
                   ${item.date ? html`<div class="timeline-date">${item.date}</div>` : ''}
-                  ${item.displayName ? html`<div class="timeline-title">${item.displayName}</div>` : ''}
+                  ${item.displayName ? html`<div class="timeline-title markdown-content">${unsafeHTML(this.parseMarkdown(item.displayName))}</div>` : ''}
                   ${item.relatedLinks ? html`
                     <div class="timeline-link">
                       <a href="${item.relatedLinks}" target="_blank" rel="noopener noreferrer">查看关联</a>

@@ -135,6 +135,12 @@ export const timelineStyles = css`
     overflow: hidden;
     border-radius: 4px;
     background: transparent;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .timeline-image-wrapper:hover {
+    opacity: 0.85;
   }
 
   .timeline-image {
@@ -289,6 +295,12 @@ export const timelineStyles = css`
     height: auto;
     border-radius: 4px;
     margin: 8px 0;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .markdown-content img:hover {
+    opacity: 0.85;
   }
 
   .markdown-content table {
@@ -586,5 +598,85 @@ export const timelineStyles = css`
   :host([orientation="alternating"]) .timeline.dark .timeline::before {
     background: var(--timeline-line-color-dark);
   }
-`;
 
+  /* 图片预览遮罩层 */
+  .image-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    cursor: zoom-out;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .image-preview-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image-preview {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    animation: zoomIn 0.3s ease;
+  }
+
+  @keyframes zoomIn {
+    from {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .image-preview-close {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .image-preview-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .image-preview-close svg {
+    width: 24px;
+    height: 24px;
+  }
+`;

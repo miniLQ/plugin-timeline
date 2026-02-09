@@ -1,9 +1,18 @@
 import { LitElement, html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { customElement, property, state } from 'lit/decorators.js';
 import { timelineStyles } from './styles';
 import type { TimelineItem } from './types';
 import { detectDarkTheme, createThemeObserver } from './utils';
 import { fetchTimelines } from './api';
+import { marked } from 'marked';
+
+// 配置 marked 为同步模式
+marked.use({
+  async: false,
+  breaks: true,
+  gfm: true,
+});
 
 @customElement('timeline-view')
 export class Timeline extends LitElement {
@@ -59,6 +68,17 @@ export class Timeline extends LitElement {
     });
   }
 
+  private parseMarkdown(text: string): string {
+    if (!text) return '';
+    try {
+      const result = marked.parse(text, { async: false });
+      return typeof result === 'string' ? result : text;
+    } catch (error) {
+      console.error('Error parsing markdown:', error);
+      return text;
+    }
+  }
+
   private async fetchTimelines() {
     if (!this.groupName) {
       return;
@@ -99,6 +119,9 @@ export class Timeline extends LitElement {
             const isAlternating = this.orientation === 'alternating';
             const isEven = index % 2 === 0;
             const sideClass = isAlternating ? (isEven ? 'timeline-item-right' : 'timeline-item-left') : '';
+            
+            const parsedContent = item.displayName ? this.parseMarkdown(item.displayName) : '';
+            
             return html`
             <div class="timeline-item ${item.image ? 'has-image' : ''} ${sideClass}">
               <div class="timeline-marker ${item.active ? 'active' : ''}"></div>
@@ -110,7 +133,7 @@ export class Timeline extends LitElement {
                 ` : ''}
                 <div class="timeline-content-inner">
                   ${item.date ? html`<div class="timeline-date">${item.date}</div>` : ''}
-                  ${item.displayName ? html`<div class="timeline-title">${item.displayName}</div>` : ''}
+                  ${parsedContent ? html`<div class="timeline-title markdown-content">${unsafeHTML(parsedContent)}</div>` : ''}
                   ${item.relatedLinks ? html`
                     <div class="timeline-link">
                       <a href="${item.relatedLinks}" target="_blank" rel="noopener noreferrer">查看关联</a>

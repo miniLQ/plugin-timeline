@@ -71,9 +71,12 @@ export class Timeline extends LitElement {
   private parseMarkdown(text: string): string {
     if (!text) return '';
     try {
+      console.log('Parsing markdown:', text);
       // 使用同步模式的 marked.parse
       const result = marked.parse(text, { async: false });
-      return typeof result === 'string' ? result : text;
+      const parsed = typeof result === 'string' ? result : text;
+      console.log('Parsed result:', parsed);
+      return parsed;
     } catch (error) {
       console.error('Error parsing markdown:', error);
       return text;

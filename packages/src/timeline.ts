@@ -33,6 +33,9 @@ export class Timeline extends LitElement {
   @state()
   private isDark: boolean = false;
 
+  @state()
+  private previewImage: string | null = null;
+
   private themeObserver?: MutationObserver;
 
   connectedCallback() {
@@ -56,6 +59,8 @@ export class Timeline extends LitElement {
     if (changedProperties.has('groupName') && this.groupName) {
       this.fetchTimelines();
     }
+    // 在每次更新后添加 Markdown 图片的点击事件
+    this.addMarkdownImageListeners();
   }
 
   private detectTheme() {
@@ -77,6 +82,29 @@ export class Timeline extends LitElement {
       console.error('Error parsing markdown:', error);
       return text;
     }
+  }
+
+  private handleImageClick(imageUrl: string) {
+    this.previewImage = imageUrl;
+  }
+
+  private addMarkdownImageListeners() {
+    // 为 Markdown 内容中的所有图片添加点击事件
+    const markdownImages = this.shadowRoot?.querySelectorAll('.markdown-content img');
+    markdownImages?.forEach((img) => {
+      (img as HTMLImageElement).onclick = (e) => {
+        e.preventDefault();
+        const target = e.target as HTMLImageElement;
+        this.handleImageClick(target.src);
+      };
+    });
+  }
+
+  private handleClosePreview(e?: Event) {
+    if (e) {
+      e.stopPropagation();
+    }
+    this.previewImage = null;
   }
 
   private async fetchTimelines() {
@@ -127,7 +155,7 @@ export class Timeline extends LitElement {
               <div class="timeline-marker ${item.active ? 'active' : ''}"></div>
               <div class="timeline-content">
                 ${item.image ? html`
-                  <div class="timeline-image-wrapper">
+                  <div class="timeline-image-wrapper" @click="${() => this.handleImageClick(item.image!)}">
                     <img src="${item.image}" alt="${item.displayName || ''}" class="timeline-image" />
                   </div>
                 ` : ''}
@@ -146,6 +174,20 @@ export class Timeline extends LitElement {
           }
         )}
       </div>
+      
+      ${this.previewImage ? html`
+        <div class="image-preview-overlay" @click="${this.handleClosePreview}">
+          <div class="image-preview-container" @click="${(e: Event) => e.stopPropagation()}">
+            <img src="${this.previewImage}" alt="预览" class="image-preview" />
+            <button class="image-preview-close" @click="${this.handleClosePreview}" aria-label="关闭">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      ` : ''}
     `;
   }
 }

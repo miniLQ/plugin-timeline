@@ -163,7 +163,7 @@ export class Timeline extends LitElement {
                   ${parsedContent ? html`<div class="timeline-title markdown-content">${unsafeHTML(parsedContent)}</div>` : ''}
                   ${item.relatedLinks ? html`
                     <div class="timeline-link">
-                      <a href="${item.relatedL @click="${(e: Event) => e.stopPropagation()}"inks}" target="_blank" rel="noopener noreferrer">查看关联</a>
+                      <a href="${item.relatedLinks}" target="_blank" rel="noopener noreferrer">查看关联</a>
                     </div>
                   ` : ''}
                 </div>
@@ -176,7 +176,7 @@ export class Timeline extends LitElement {
       
       ${this.previewImage ? html`
         <div class="image-preview-overlay" @click="${this.handleClosePreview}">
-          <div class="image-preview-container">
+          <div class="image-preview-container" @click="${(e: Event) => e.stopPropagation()}">
             <img src="${this.previewImage}" alt="预览" class="image-preview" />
             <button class="image-preview-close" @click="${this.handleClosePreview}" aria-label="关闭">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -295,6 +295,12 @@ export const timelineStyles = css`
     height: auto;
     border-radius: 4px;
     margin: 8px 0;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .markdown-content img:hover {
+    opacity: 0.85;
   }
 
   .markdown-content table {

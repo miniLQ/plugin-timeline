@@ -45,6 +45,8 @@ export class Timeline extends LitElement {
     if (this.groupName) {
       this.fetchTimelines();
     }
+    // 添加全局点击监听，处理 Markdown 中的图片
+    this.addEventListener('click', this.handleGlobalClick);
   }
 
   disconnectedCallback() {
@@ -52,6 +54,7 @@ export class Timeline extends LitElement {
     if (this.themeObserver) {
       this.themeObserver.disconnect();
     }
+    this.removeEventListener('click', this.handleGlobalClick);
   }
 
   updated(changedProperties: Map<string | number | symbol, unknown>) {
@@ -86,7 +89,20 @@ export class Timeline extends LitElement {
     this.previewImage = imageUrl;
   }
 
-  private handleClosePreview() {
+  private handleGlobalClick = (e: Event) => {
+    const target = e.target as HTMLElement;
+    // 处理 Markdown 中的图片点击
+    if (target.tagName === 'IMG' && target.closest('.markdown-content')) {
+      e.preventDefault();
+      const img = target as HTMLImageElement;
+      this.handleImageClick(img.src);
+    }
+  }
+
+  private handleClosePreview(e?: Event) {
+    if (e) {
+      e.stopPropagation();
+    }
     this.previewImage = null;
   }
 
@@ -147,7 +163,7 @@ export class Timeline extends LitElement {
                   ${parsedContent ? html`<div class="timeline-title markdown-content">${unsafeHTML(parsedContent)}</div>` : ''}
                   ${item.relatedLinks ? html`
                     <div class="timeline-link">
-                      <a href="${item.relatedLinks}" target="_blank" rel="noopener noreferrer">查看关联</a>
+                      <a href="${item.relatedL @click="${(e: Event) => e.stopPropagation()}"inks}" target="_blank" rel="noopener noreferrer">查看关联</a>
                     </div>
                   ` : ''}
                 </div>
